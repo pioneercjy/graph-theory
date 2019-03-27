@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define x 10000
+const int NumVertex = 7;
+const int NumEdge = 12;
+int map[NumVertex][NumVertex] =
+
+{
+	x, 5, x, 15, x, 10, 2,  
+	5, x, 1, x, x, x, 8,  
+	x, 1, x, 4, x, 17, x,  
+	15, x, 4, x, 6, 7, x, 
+	x, x, x, 6, x, 5, x, 
+	10, x, 17, 7, 5, x, 3, 
+	2, 8, x, x, x, 3, x,  
+};
+ 
+int hash[NumVertex];//节点所属的集合
+int Edge[NumEdge];//按照邻接表的排列顺序给每条边编号，该数组表示图中第i条边的长度
+int BeginVertex[NumEdge], EndVertex[NumEdge];//图中边的起始节点和图中边的终止节点
+int AcceptedEdge[NumEdge];//每条边被接受的情况，接受为1，不接受为0
+int Known[NumEdge];
+ 
+int Find(int Vertex)
+{
+	return hash[Vertex];
+}//查找节点所属的集合
+ 
+void Union(int Vertex1, int Vertex2)
+{
+	for (int i = 0; i < NumVertex; i++)
+	{
+		if (hash[i] == hash[Vertex2])
+			hash[i] = hash[Vertex1];
+	}
+}//合并两个节点
+ 
+void Kruskal(int map[][NumVertex])
+{
+	int EdgeOrder = 0;
+ 
+    for (int i = 0; i < NumVertex; i++)
+	{
+		hash[i] = i + 1;
+	}//散列函数，返回节点所属的集合
+ 
+	for (int i = 0; i < NumVertex; i++)
+	{
+		for (int j = i+1; j < NumVertex; j++)
+		{
+			if (map[i][j]<x)
+			{
+				Edge[EdgeOrder] = map[i][j];
+				BeginVertex[EdgeOrder] = i;
+				EndVertex[EdgeOrder] = j;
+				EdgeOrder++;
+			}
+		}
+	}//存储边的信息，长度，起点，终点
+ 
+	for (int i = 0; i < NumEdge; i++)
+	{
+		int min = x, position = -1;
+		for (int i = 0; i < NumEdge; i++)
+		{
+			if (Known[i] != 1 && min>Edge[i])
+			{
+ 
+				min = Edge[i];
+				position = i;
+			}
+		}//搜索距离最小的边
+ 
+		Known[position] = 1;//标记该变已经被访问过
+ 
+		if (Find(BeginVertex[position]) != Find(EndVertex[position]))
+		{
+			Union(BeginVertex[position], EndVertex[position]);
+			AcceptedEdge[position] = 1;
+		}//如果选取的边加到图中没有构成圈（两节点属于不同集合），则该边可以接受，遂把该边加入图中
+	}
+}
+ 
+void printarray(int array[])
+{
+	for (int i = 0; i <NumEdge; i++)
+		printf("%d ", array[i]);
+}
+ 
+int main()
+{
+	Kruskal(map);
+	printarray(AcceptedEdge);
+	printf("\n");
+	printarray(BeginVertex);
+	printf("\n");
+	printarray(EndVertex);
+	printf("\n");
+}
